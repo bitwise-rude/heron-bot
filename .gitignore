@@ -1,2 +1,4 @@
 venv/
 .env
+cookies.json
+__pycache__/

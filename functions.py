@@ -6,10 +6,8 @@ from bs4 import BeautifulSoup as bs
 from selenium.webdriver.chrome.options import Options
 from time import sleep
 from pytube import YouTube
-from youtubesearchpython import VideosSearch
 import os
 import giphy_client
-from pyChatGPT import ChatGPT
 
 chrome_options = Options()
 chrome_options.add_argument("--headless")
@@ -148,7 +146,7 @@ def fact():
         a=json.loads(response.text)
         return (a[0]['fact'])
     else:
-        print("Error:", response.status_code, response.text)
+        print("Error: in the fact librar", response.status_code, response.text)
 
 def advice():
     url="https://api.adviceslip.com/advice"
