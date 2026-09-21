@@ -47,6 +47,74 @@ prev1 = time.time()
 #             print("HERE")
 #             prev = time.time()
 
+def list_commands():
+    return """
+Heron Bot Commands
+
+/wiki <topic>
+Search Wikipedia.
+
+/show <query>
+Search and send an image.
+
+/show routine today
+Show today's routine.
+
+/show routine tom
+Show tomorrow's routine.
+
+/date
+Show current date and time.
+
+/date nepal
+Show Nepali date.
+
+/advice
+Get random advice.
+
+/play <song>
+Search YouTube and send the audio.
+
+/gif <query>
+Search and send a GIF.
+
+/say <text>
+Convert text to speech.
+
+/say nepali <text>
+Convert Nepali text to speech.
+
+/say quote
+Get a random quote.
+
+/name <name>
+Save your name.
+
+/help
+Show Heron help information.
+
+/ronb
+RONB feature (currently disabled).
+
+/news
+News feature (currently disabled).
+
+/post
+Post feature (currently disabled).
+
+/heron <message>
+ChatGPT feature (currently disabled).
+
+Emotion commands:
+/chill
+/sad
+/excited
+/khoon
+/laugh
+/happy
+/smile
+""".strip()
+
 @client.event
 async def on_message(message:Message):
 # def onMessage(self, mid, author_id, message_object, thread_id, thread_type, ts, metadata, msg, **kwargs):
@@ -95,6 +163,9 @@ async def on_message(message:Message):
 
             if message_object.text[0:5]=="/help":
                 text="Head out to our website heronbot.pythonanywhere.com to see all the features and news!!"
+
+            if message_object.text[0:5]=="/list":
+                text=list_commands()
 
             if message_object.text[0:5]=="/show":
                 if "ronb" in message_object.text.lower():
@@ -193,7 +264,8 @@ async def on_message(message:Message):
             #     thread_type=thread_type,
             # )
 
-        await client.send_message(
+        if text:
+            await client.send_message(
                 text=text,
                 thread_id=message.thread_id,
                 reply_to_message=message.id
