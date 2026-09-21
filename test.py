@@ -169,11 +169,6 @@ async def on_message(message:Message):
                         text=nep_date()
                     else:
                         text=date()
-                elif "joke" in message_object.text.lower():
-                    if not "mama" in message_object.text.lower():
-                        text=joke() # kam gardaina
-                    else:
-                        text=yo_mama()
 
                 else:
                     if not "nepali" in message_object.text.lower():
@@ -192,7 +187,7 @@ async def on_message(message:Message):
             if '/chill' in t or '/sad' in t or '/excited' in t or '/khoon' in t or'/laugh' in t or '/happy' in t or '/smile' in t:
                 await client.send_files_from_path(
                                 thread_id =  message.thread_id,
-                                file_paths=[f"emotions\\{message_object.text.lower()[1:]}.jpeg"])
+                                file_paths=[f"emotions/{message_object.text.lower()[1:]}.jpeg"])
             #         client.sendLocalFiles(file_paths=f"emotions\\{message_object.text.lower()[1:]}.jpeg",
             #     thread_id=thread_id,
             #     thread_type=thread_type,

@@ -10,6 +10,9 @@ import os
 import giphy_client
 from dotenv import load_dotenv
 from ddgs import DDGS
+from pathlib import Path
+from tempfile import TemporaryDirectory
+import yt_dlp
 
 
 load_dotenv()
@@ -51,13 +54,6 @@ def rand_quote():
     b = requests.get(url)
     s = bs4.BeautifulSoup(b.text,'html.parser')
     return (s.find('h1').text)
-
-
-
-
-def joke():
-    g = requests.get("https://icanhazdadjoke.com",headers={"Accept":"text/plain"})
-    return g.text
 
 def conv_mp3(text,l='en'):
     myobj = gTTS(text=text, lang=l, slow=False)
@@ -116,15 +112,27 @@ def get_pos_ronb():
     return thing
 
 def download(s):
-    link = VideosSearch(s,limit=1).result()['result'][0]
-    link = link['link']
-    yt= YouTube(link)
-    video = yt.streams.filter(only_audio=True).first()
-    out_file = video.download()
-    base, ext = os.path.splitext(out_file)
-    new_file = 'audio' + '.mp3'
-    os.remove("audio.mp3")
-    os.rename(out_file, new_file)
+    destination = Path("audio.mp3").resolve()
+
+    with TemporaryDirectory(dir=destination.parent) as temp:
+        options = {
+            "format": "bestaudio/best",
+            "outtmpl": str(Path(temp) / "audio.%(ext)s"),
+            "noplaylist": True,
+            "postprocessors": [{
+                "key": "FFmpegExtractAudio",
+                "preferredcodec": "mp3",
+                "preferredquality": "192",
+            }],
+        }
+
+        with yt_dlp.YoutubeDL(options) as yt:
+            yt.download([f"ytsearch1:{s}"])
+
+        # Replace the previous file only after a successful download.
+        (Path(temp) / "audio.mp3").replace(destination)
+
+    return str(destination)
 
 def giphy(q):
     key = "DtsfE5oaOQLOiOySqoGfMHeMX5SeS8As"
