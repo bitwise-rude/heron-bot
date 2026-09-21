@@ -160,3 +160,5 @@ def initialize_gpt():
 
 def send_gpt(msg):
     return (api.send_message(msg)['message'].replace('ChatGPT',"Heron").replace("OpenAI","Section G"))
+
+
