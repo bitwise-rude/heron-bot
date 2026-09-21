@@ -161,4 +161,7 @@ def initialize_gpt():
 def send_gpt(msg):
     return (api.send_message(msg)['message'].replace('ChatGPT',"Heron").replace("OpenAI","Section G"))
 
-
+def about_suraj():
+    return """
+    Suraj is one of my contributors. He helped create me, broke me several times, fixed me occasionally, and still acts surprised when I stop working. Basically, if I do something smart, I did it. If I crash, blame Suraj.
+""".strip()
