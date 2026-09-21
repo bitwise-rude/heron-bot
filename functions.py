@@ -1,4 +1,4 @@
-import wikipedia,requests,bs4,datetime,nepali_datetime
+import wikipediaapi,requests,bs4,datetime,nepali_datetime
 import json
 from gtts import gTTS
 from selenium import webdriver
@@ -8,7 +8,11 @@ from time import sleep
 from pytube import YouTube
 import os
 import giphy_client
+from dotenv import load_dotenv
+from ddgs import DDGS
 
+
+load_dotenv()
 chrome_options = Options()
 chrome_options.add_argument("--headless")
 
@@ -19,34 +23,26 @@ headers = {
 rou={0:"COMP MS\nPHY RP\nCHE GD\nPHY DN\nMATHS KP\nPHY RP\nNEP PC",6:"COMP MS\nMATHS DM\nTEST\nPHY DN\nMATHS KP\nENG GA\nNEP PC",1:"COMP MS\nPHY DR\nCHE JY\nMATHS DM\nMATHS KP\nENG GA\nNEP PC",2:"CHEM JY\nCOMP MS\nPRACTICAL\nPRACTICAL\nPHY DR\nENG GA\nMATHS ND",3:"COMP MS\nCHE KS\nMATHS ND\nCHE JY\nPHY RP\nPRACTICAL\nPRACTICAL",4:"COMP MS\nCHE GD\nCHE KS\nPHY RP\nTEST\nENG GA\nMATHS ND",5:"आज छुट्टि हे मादरचोद"}
 rou2={0:"CHEM JY\nMATHS DM\nPHY RP\nCHEM KS\nBOT AN\nPRACITCALS",6:"BOT AN\nPHY DR\nMATHS DM\nCHEM KS\nMATHS DM\nENG AS\nTEST",1:"MATHS DM\nBOT AN \nCHE SP\nPHY RP\nPHY DN\nENG GA\nTEST",2:"NEP BHU\nPRACTICAL\nCHE SP\nMATHS KP\nZOO UB\nPHY DN",3:"NEP BHU\nZOO UB\nCHE JY\nPHY DN\nMATHS KP\nENG AS\nPHY DR",4:"NEP BHU\nMATHS KP\nZOOL UB\nPRACTICAL\nPHY RP\nCHE JY\n",5:"आज छुट्टि हे मादरचोद"}
 
+wiki = wikipediaapi.Wikipedia(
+    user_agent="HeronBot/1.0 (dareludum@gmail.com)",
+    language="en"
+)
+
 def get_s(tx):
-    try:
-        return wikipedia.summary(tx, sentences=2,auto_suggest=False)
-    except:
-        return wikipedia.summary(tx, sentences=2,auto_suggest=True)
-
+    page = wiki.page(tx)
+    
+    if not page.exists():
+        return f"Sorry, I couldn't find a page for '{tx}'."
+    
+    sentences = page.summary.split('. ')
+    summary_text = '. '.join(sentences[:2]) + '.'
+    if "may refer to" in summary_text:
+        return "Hmm. It is a vague term can you write exactly what you want?"
+    return summary_text
+    
 def get_im(query):
-            image_urls = []
-
-            url = "https://bing-image-search1.p.rapidapi.com/images/search"
-
-            querystring = {"q": query, "count": 1}
-
-            headers = {
-                'x-rapidapi-host': "bing-image-search1.p.rapidapi.com",
-                'x-rapidapi-key': "801ba934d6mshf6d2ea2be5a6a40p188cbejsn09635ee54c45"
-            }
-            print("sending requests...")
-            response = requests.request(
-                "GET", url, headers=headers, params=querystring)
-            print("got response..")
-            data = json.loads(response.text)
-            img_contents = (data["value"])
-            for img_url in img_contents:
-                image_urls.append(img_url["contentUrl"])
-                print("appended..")
-                print(image_urls)
-                return image_urls[0]
+    results = DDGS(timeout=15).images(query, max_results=1)
+    return results[0]["image"] if results else None
 
 def rand_quote():
 
@@ -138,15 +134,6 @@ def giphy(q):
     url = f'https://media.giphy.com/media/{giff.id}/giphy.gif'
     return url
 
-def fact():
-    limit = 1
-    api_url = 'https://api.api-ninjas.com/v1/facts?limit={}'.format(limit)
-    response = requests.get(api_url, headers={'X-Api-Key': '+KBpcqK6SeJPNFn9DQ9YRQ==9EDHbVo5RVeK3jER'})
-    if response.status_code == requests.codes.ok:
-        a=json.loads(response.text)
-        return (a[0]['fact'])
-    else:
-        print("Error: in the fact librar", response.status_code, response.text)
 
 def advice():
     url="https://api.adviceslip.com/advice"

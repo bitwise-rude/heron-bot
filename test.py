@@ -90,9 +90,6 @@ async def on_message(message:Message):
                 m="Heron's Code isn't open source yet"
                 text=m
 
-            if message_object.text[0:5]=="/fact":
-                text=fact()
-
             if message_object.text[0:7]=="/advice":
                 text=advice()
 
@@ -103,39 +100,41 @@ async def on_message(message:Message):
                 if "ronb" in message_object.text.lower():
                     # self.send(Message(text=get_pos_ronb()),thread_id,thread_type=thread_type)
                     text="RONB NOT IMPLEMENTED"
-                if not  "routine" in message_object.text.lower():
-        #                 client.sendRemoteFiles(
-        #     file_urls=get_im(message_object.text[6:]),
-        #
-        #     thread_id=thread_id,
-        #     thread_type=thread_type,
-        # )
-                    text="routine not implemented"
+                elif not  "routine" in message_object.text.lower():
+                        await client.send_files_from_url(
+                                thread_id =  message.thread_id,
+                                file_urls=[get_im(message.text[6:])],
+                                )
 
-            #     else:
-            #         if "today" in message_object.text.lower():
-            #             if not ("section d" in message_object.text.lower()):
-            #                 self.send(Message(text=today_routine()),thread_id,thread_type=thread_type)
-            #             else:
-            #                 self.send(Message(text=today_routine('d')),thread_id,thread_type=thread_type)
-            #         elif "tom" in message_object.text.lower():
-            #             if not ("section d" in message_object.text.lower()):
-            #                 self.send(Message(text=tomm_routine()),thread_id,thread_type=thread_type)
-            #             else:
-            #                 self.send(Message(text=tomm_routine('d')),thread_id,thread_type=thread_type)
-            #         else:
-            #             if not ("section d" in message_object.text.lower()):
-            #                 client.sendLocalFiles(file_paths="routine.jpg",
-            #     message=Message(text="Hopefully this works!:)"),
-            #     thread_id=thread_id,
-            #     thread_type=thread_type,
-            # )
-            #             else:
-            #                 client.sendLocalFiles(file_paths="sec_D.jpg",
-            #     message=Message(text="Good luck Section D!:)"),
-            #     thread_id=thread_id,
-            #     thread_type=thread_type,
-            # )
+                else:
+                    if "today" in message_object.text.lower():
+                        if not ("section d" in message_object.text.lower()):
+                           text=today_routine()
+                        else:
+                            text=today_routine('d')
+                    elif "tom" in message_object.text.lower():
+                        if not ("section d" in message_object.text.lower()):
+                            text=tomm_routine()
+                        else:
+                            text=tomm_routine('d')
+                    else:
+                        await client.send_files_from_path(
+                                thread_id =  message.thread_id,
+                                file_paths=["routine.jpg"]
+                                )
+
+                        if not ("section d" in message_object.text.lower()):
+                            await client.send_files_from_path(
+                                thread_id =  message.thread_id,
+                                file_paths=["routine.jpg"]
+                                )
+                            text="Hope this worsk"
+                        else:
+                            await client.send_files_from_path(
+                                thread_id =  message.thread_id,
+                                file_paths=["sec_D.jpg"]
+                                )
+                            text="Good luck Section D"
             if message_object.text[0:5].lower()=="/date":
                 if "nepal" in message_object.text.lower():
                     text=nep_date()
@@ -152,11 +151,15 @@ async def on_message(message:Message):
             if message_object.text[0:5].lower()=="/play":
                     download(message_object.text[5:])
                     print("downloaded")
-                    # self.sendLocalVoiceClips("audio.mp3",message="Here enjoy!!",thread_id=thread_id,thread_type=thread_type)               
-                    text="CAMT SEND DONWLOADED NOW"
+                    await client.send_files_from_path(
+                                thread_id =  message.thread_id,
+                                file_paths=["audio.mp3"])
+
             if message_object.text[0:4].lower()=="/gif":
+                await client.send_files_from_url(
+                                thread_id =  message.thread_id,
+                                file_urls=[giphy(message_object.text[4:])])
                 # self.sendRemoteFiles(giphy(message_object.text[4:]),thread_id=thread_id,thread_type=thread_type)
-                text="CANT SEND GIF NOW"
 
             if message_object.text[0:4].lower()=="/say":
                 if "quote" in message_object.text.lower():
@@ -175,20 +178,26 @@ async def on_message(message:Message):
                 else:
                     if not "nepali" in message_object.text.lower():
                         conv_mp3(message_object.text[4:])
+                        await client.send_files_from_path(
+                                thread_id =  message.thread_id,
+                                file_paths=["welcome.mp3"])
                         # self.sendLocalVoiceClips("welcome.mp3",message=None,thread_id=thread_id,thread_type=thread_type)
-                        text="not implemented"
                     else:
-                        # conv_mp3(message_object.text[4:].lower().replace("nepali","").replace("in",""),'ne')
+                        conv_mp3(message_object.text[4:].lower().replace("nepali","").replace("in",""),'ne')
                         # self.sendLocalVoiceClips("welcome.mp3",message=None,thread_id=thread_id,thread_type=thread_type)
-                        text="not implemetned"
-
+                        await client.send_files_from_path(
+                                thread_id =  message.thread_id,
+                                file_paths=["welcome.mp3"])
 
             if '/chill' in t or '/sad' in t or '/excited' in t or '/khoon' in t or'/laugh' in t or '/happy' in t or '/smile' in t:
+                await client.send_files_from_path(
+                                thread_id =  message.thread_id,
+                                file_paths=[f"emotions\\{message_object.text.lower()[1:]}.jpeg"])
             #         client.sendLocalFiles(file_paths=f"emotions\\{message_object.text.lower()[1:]}.jpeg",
             #     thread_id=thread_id,
             #     thread_type=thread_type,
             # )
-                text="NOT IMPLEMENTED"
+
         await client.send_message(
                 text=text,
                 thread_id=message.thread_id,
