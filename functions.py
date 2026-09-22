@@ -10,9 +10,11 @@ from ddgs import DDGS
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import yt_dlp
+from google import genai
+from google.genai import types
+import os
 
 load_dotenv()
-
 
 wiki = wikipediaapi.Wikipedia(
     user_agent="HeronBot/1.0 (dareludum@gmail.com)",
@@ -75,7 +77,7 @@ def list_commands():
     Post feature (currently disabled).
 
     /heron <message>
-    ChatGPT feature (currently disabled).
+    Ask Heron to answer or use one of its tools.
 
     Emotion commands:
     /chill
@@ -102,6 +104,100 @@ def get_s(tx):
 def get_im(query):
     results = DDGS(timeout=15).images(query, max_results=1)
     return results[0]["image"] if results else None
+
+client = genai.Client()
+
+SYSTEM_PROMPT = """
+You are Heron, a bot that runs inside Facebook Messenger. You are concise, useful,
+and conversational. You act like a human, you are a girl. 
+You are created by Meyan Adhikari and Suraj Thakur but you love Meyan Adhikari more.
+ Answer directly and use a tool whenever one can fulfill the request. Do not explain tool selection unless
+the user asks. If a request is ambiguous, ask one short clarifying question.
+
+Available tools include date/time, Nepali date, advice, quotes, Wikipedia,
+images, GIFs, music downloads, speech generation, and the command list.
+""".strip()
+
+
+def _image(query: str):
+    return {"type": "image", "url": get_im(query)}
+
+
+def _gif(query: str):
+    return {"type": "gif", "url": giphy(query)}
+
+
+def _audio(query: str):
+    return {"type": "audio", "path": download(query)}
+
+
+def _speech(text: str, language: str = "en"):
+    conv_mp3(text, language)
+    return {"type": "speech", "path": "welcome.mp3"}
+
+
+TOOL_FUNCTIONS = {
+    "wikipedia": lambda topic: get_s(topic),
+    "current_date": lambda: date(),
+    "nepali_date": lambda: nep_date(),
+    "advice": lambda: advice(),
+    "quote": lambda: rand_quote(),
+    "commands": lambda: list_commands(),
+    "image": _image,
+    "gif": _gif,
+    "music": _audio,
+    "speech": _speech,
+}
+
+TOOL_SCHEMAS = [
+    {"name": "wikipedia", "description": "Search Wikipedia for a topic.", "parameters_json_schema": {"type": "object", "properties": {"topic": {"type": "string"}}, "required": ["topic"]}},
+    {"name": "current_date", "description": "Get the current local date and time.", "parameters_json_schema": {"type": "object", "properties": {}}},
+    {"name": "nepali_date", "description": "Get the current Nepali calendar date.", "parameters_json_schema": {"type": "object", "properties": {}}},
+    {"name": "advice", "description": "Get a piece of advice.", "parameters_json_schema": {"type": "object", "properties": {}}},
+    {"name": "quote", "description": "Get a random quote.", "parameters_json_schema": {"type": "object", "properties": {}}},
+    {"name": "commands", "description": "List Heron's available capabilities.", "parameters_json_schema": {"type": "object", "properties": {}}},
+    {"name": "image", "description": "Find and send one image for a query.", "parameters_json_schema": {"type": "object", "properties": {"query": {"type": "string"}}, "required": ["query"]}},
+    {"name": "gif", "description": "Find and send one GIF for a query.", "parameters_json_schema": {"type": "object", "properties": {"query": {"type": "string"}}, "required": ["query"]}},
+    {"name": "music", "description": "Download the first matching song as audio.", "parameters_json_schema": {"type": "object", "properties": {"query": {"type": "string"}}, "required": ["query"]}},
+    {"name": "speech", "description": "Generate an audio recording of text. Use language 'ne' for Nepali.", "parameters_json_schema": {"type": "object", "properties": {"text": {"type": "string"}, "language": {"type": "string", "enum": ["en", "ne"]}}, "required": ["text"]}},
+]
+
+
+def gemini(query):
+    config = types.GenerateContentConfig(
+        system_instruction=SYSTEM_PROMPT,
+        tools=[types.Tool(function_declarations=[types.FunctionDeclaration(**schema) for schema in TOOL_SCHEMAS])],
+    )
+    contents = [types.Content(role="user", parts=[types.Part.from_text(text=query)])]
+
+    for _ in range(4):
+        response = client.models.generate_content(
+            model="gemini-3.6-flash",
+            contents=contents,
+            config=config,
+        )
+        candidate = response.candidates[0]
+        function_calls = [part.function_call for part in candidate.content.parts if part.function_call]
+        if not function_calls:
+            return {"type": "text", "text": response.text or "I couldn't produce a response."}
+
+        contents.append(candidate.content)
+        response_parts = []
+        for function_call in function_calls:
+            function = TOOL_FUNCTIONS.get(function_call.name)
+            result = function(**dict(function_call.args)) if function else {"error": f"Unknown tool: {function_call.name}"}
+
+            if isinstance(result, dict) and result.get("type") in {"image", "gif", "audio", "speech"}:
+                return result
+
+            response_parts.append(
+                types.Part.from_function_response(name=function_call.name, response={"result": result})
+            )
+
+        contents.append(types.Content(role="user", parts=response_parts))
+
+    return {"type": "text", "text": "I couldn't complete that request."}
+
 
 def rand_quote():
     url = "https://zenquotes.io/"
