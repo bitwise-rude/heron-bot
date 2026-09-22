@@ -9,119 +9,9 @@ import pickle
 import os
 
 
-meyan = "100078863451761"
-on=True
-prev = time.time()
 client = Client(cookies_file_path="./cookies.json")
-
-# def do():
-#     global prev
-#     while on:
-#         if(time.time()-prev) >60:
-#             print("WORKING")
-#             with open("school.text",'r',encoding="utf8") as file1:
-#                 st = file1.read()
-#                 print(st)
-#             stuff=get_pos()
-#             print(stuff)
-#             if(stuff!=st):
-#                 print("OK NOT COME")
-#                 for grps in GROUPS:
-#                     client.send(Message(text=stuff),grps,thread_type=ThreadType.GROUP)
-#
-#             with open("school.text",'w',encoding="utf8") as file1:
-#                 file1.write(stuff)
-#             prev = time.time()
-#             print("HERE")
-
-on1=True
-prev1 = time.time()
-
-# def do1():
-#     global prev
-#     while on1:
-#         if(time.time()-prev) >600:
-#             stuff=get_pos_ronb()
-#             client.send(Message(text=stuff),"5354113521302706",thread_type=ThreadType.GROUP)
-#             prev1= time.time()
-#             print("HERE")
-#             prev = time.time()
-
-def list_commands():
-    return """
-Heron Bot Commands
-
-/wiki <topic>
-Search Wikipedia.
-
-/show <query>
-Search and send an image.
-
-/show routine today
-Show today's routine.
-
-/show routine tom
-Show tomorrow's routine.
-
-/date
-Show current date and time.
-
-/date nepal
-Show Nepali date.
-
-/advice
-Get random advice.
-
-/play <song>
-Search YouTube and send the audio.
-
-/gif <query>
-Search and send a GIF.
-
-/say <text>
-Convert text to speech.
-
-/say nepali <text>
-Convert Nepali text to speech.
-
-/say quote
-Get a random quote.
-
-/name <name>
-Save your name.
-
-/help
-Show Heron help information.
-
-/ronb
-RONB feature (currently disabled).
-
-/news
-News feature (currently disabled).
-
-/post
-Post feature (currently disabled).
-
-/heron <message>
-ChatGPT feature (currently disabled).
-
-Emotion commands:
-/chill
-/sad
-/excited
-/khoon
-/laugh
-/happy
-/smile
-""".strip()
-
 @client.event
 async def on_message(message:Message):
-# def onMessage(self, mid, author_id, message_object, thread_id, thread_type, ts, metadata, msg, **kwargs):
-
-        # Do something with message_object here
-        # self.markAsDelivered(thread_id, message_object.uid)
-        # self.markAsRead(thread_id)
         if message.sender_id == client.uid:
             return
 
@@ -140,15 +30,12 @@ async def on_message(message:Message):
         if True: # i didn't wanna deindent
             if message_object.text[0:5]=="/post":
                 text="Cannot post atm"
-                # self.send(Message(text=get_pos()),thread_id,thread_type=thread_type)
 
             if message_object.text[0:6]=="/heron":
                 text="cannot use chatgpt atm"
-                # self.send(Message(text=send_gpt(message_object.text[7:])),thread_id,thread_type=thread_type)
 
             if message_object.text[0:5]=="/wiki":
-                text=get_s(message_object.text[6:]) # TODO: kam garena
-
+                text=get_s(message_object.text[6:]) 
             if message_object.text.lower() == 'heron':
                 text="Hey"
             if message_object.text[0:5]=="/name":
@@ -161,9 +48,6 @@ async def on_message(message:Message):
             if message_object.text[0:7]=="/advice":
                 text=advice()
 
-            if message_object.text.strip().lower() == '/suraj':
-                text=about_suraj()
-
             if message_object.text[0:5]=="/help":
                 text="Head out to our website heronbot.pythonanywhere.com to see all the features and news!!"
 
@@ -172,7 +56,6 @@ async def on_message(message:Message):
 
             if message_object.text[0:5]=="/show":
                 if "ronb" in message_object.text.lower():
-                    # self.send(Message(text=get_pos_ronb()),thread_id,thread_type=thread_type)
                     text="RONB NOT IMPLEMENTED"
                 elif not  "routine" in message_object.text.lower():
                         await client.send_files_from_url(
@@ -217,7 +100,6 @@ async def on_message(message:Message):
             t = message_object.text.lower()
 
             if message_object.text.strip().lower()=="/ronb":
-                    # self.send(Message(text=get_pos_ronb()),thread_id,thread_type=thread_type)
                     if message_object.text.strip().lower():
                         text=get_pos_ronb()
                     else:
@@ -234,7 +116,6 @@ async def on_message(message:Message):
                 await client.send_files_from_url(
                                 thread_id =  message.thread_id,
                                 file_urls=[giphy(message_object.text[4:])])
-                # self.sendRemoteFiles(giphy(message_object.text[4:]),thread_id=thread_id,thread_type=thread_type)
 
             if message_object.text[0:4].lower()=="/say":
                 if "quote" in message_object.text.lower():
@@ -251,10 +132,8 @@ async def on_message(message:Message):
                         await client.send_files_from_path(
                                 thread_id =  message.thread_id,
                                 file_paths=["welcome.mp3"])
-                        # self.sendLocalVoiceClips("welcome.mp3",message=None,thread_id=thread_id,thread_type=thread_type)
                     else:
                         conv_mp3(message_object.text[4:].lower().replace("nepali","").replace("in",""),'ne')
-                        # self.sendLocalVoiceClips("welcome.mp3",message=None,thread_id=thread_id,thread_type=thread_type)
                         await client.send_files_from_path(
                                 thread_id =  message.thread_id,
                                 file_paths=["welcome.mp3"])
@@ -263,10 +142,7 @@ async def on_message(message:Message):
                 await client.send_files_from_path(
                                 thread_id =  message.thread_id,
                                 file_paths=[f"emotions/{message_object.text.lower()[1:]}.jpeg"])
-            #         client.sendLocalFiles(file_paths=f"emotions\\{message_object.text.lower()[1:]}.jpeg",
-            #     thread_id=thread_id,
-            #     thread_type=thread_type,
-            # )
+           
 
         if text:
             await client.send_message(
@@ -275,24 +151,8 @@ async def on_message(message:Message):
                 reply_to_message=message.id
                 )
 
-
-GROUPS = [5354113521302706,5850146545005742,6354363004636599]
-GROUPS_ORDER=['g','d','f']
-
-
-#Thread(target=do1).start()
-#Thread(target=do).start()
-
-print("HI I AM HERE")
-try:
-    client.run()
-except:
-    on=False
-    on1=False
-on=False
-on1=False
-
-
+client.run()
 
 
  #huh i completed it ig today is 1-22-2022  1:59 AM and i feel shit
+ #revived at 2026 september

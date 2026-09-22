@@ -2,3 +2,5 @@ venv/
 .env
 cookies.json
 __pycache__/
+welcome.mp3
+audio.mp3
