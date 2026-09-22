@@ -161,6 +161,9 @@ async def on_message(message:Message):
             if message_object.text[0:7]=="/advice":
                 text=advice()
 
+            if message_object.text.strip().lower() == '/suraj':
+                text=about_suraj()
+
             if message_object.text[0:5]=="/help":
                 text="Head out to our website heronbot.pythonanywhere.com to see all the features and news!!"
 
@@ -213,12 +216,13 @@ async def on_message(message:Message):
                     text=date()
             t = message_object.text.lower()
 
-            if message_object.text[0:5].lower()=="/ronb":
+            if message_object.text.strip().lower()=="/ronb":
                     # self.send(Message(text=get_pos_ronb()),thread_id,thread_type=thread_type)
-                    text="RONB NOT IMPLEMENTED NOW"
-            if message_object.text[0:5].lower()=="/news":
-                    # self.send(Message(text=get_pos_ronb()),thread_id,thread_type=thread_type)
-                    text="RONB NOT IMPLEMENTED NOW"
+                    if message_object.text.strip().lower():
+                        text=get_pos_ronb()
+                    else:
+                        text="RONB NOT IMPLEMENTED NOW"
+                        
             if message_object.text[0:5].lower()=="/play":
                     download(message_object.text[5:])
                     print("downloaded")
