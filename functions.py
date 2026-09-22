@@ -164,10 +164,6 @@ def advice():
     a = json.loads(res.text)
     return a['slip']['advice']
 
-def name(n,num,g):
-    with open('names.txt','a') as file1:
-        print(f'{n}..{num}..{g}\n\n',file=file1)
-
 def about_suraj():
     return """
     Suraj is a piece of shit.

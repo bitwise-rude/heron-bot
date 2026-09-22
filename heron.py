@@ -38,9 +38,6 @@ async def on_message(message:Message):
                 text=get_s(message_object.text[6:]) 
             if message_object.text.lower() == 'heron':
                 text="Hey"
-            if message_object.text[0:5]=="/name":
-                name((message_object.text[6:]),message_object.sender_id,message_object.thread_id)
-                text="Added your name, thanks"
             if message_object.text[0:5]=="sourc":
                 m="Heron's Code isn't open source yet"
                 text=m
