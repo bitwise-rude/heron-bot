@@ -23,3 +23,5 @@ client.run()
 
  #huh i completed it ig today is 1-22-2022  1:59 AM and i feel shit
  #revived at 2026 september
+
+ # rechanging everything
