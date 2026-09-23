@@ -1,7 +1,6 @@
 from fbchat_muqit import Client, Message, EventType
 from threading import Thread
 
-
 client = Client(cookies_file_path="./cookies.json")
 
 @client.event
