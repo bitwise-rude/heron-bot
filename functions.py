@@ -5,87 +5,16 @@ from bs4 import BeautifulSoup as bs
 from time import sleep
 from pytube import YouTube
 import giphy_client
-from dotenv import load_dotenv
 from ddgs import DDGS
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import yt_dlp
 import os
 
-load_dotenv()
-
 wiki = wikipediaapi.Wikipedia(
     user_agent="HeronBot/1.0 (dareludum@gmail.com)",
     language="en"
 )
-
-def list_commands():
-    return """
-    Heron Bot Commands
-
-    /wiki <topic>
-    Search Wikipedia.
-
-    /show <query>
-    Search and send an image.
-
-    /show routine today
-    Show today's routine.
-
-    /show routine tom
-    Show tomorrow's routine.
-
-    /date
-    Show current date and time.
-
-    /date nepal
-    Show Nepali date.
-
-    /advice
-    Get random advice.
-
-    /play <song>
-    Search YouTube and send the audio.
-
-    /gif <query>
-    Search and send a GIF.
-
-    /say <text>
-    Convert text to speech.
-
-    /say nepali <text>
-    Convert Nepali text to speech.
-
-    /say quote
-    Get a random quote.
-
-    /name <name>
-    Save your name.
-
-    /help
-    Show Heron help information.
-
-    /ronb
-    RONB feature (currently disabled).
-
-    /news
-    News feature (currently disabled).
-
-    /post
-    Post feature (currently disabled).
-
-    /heron <message>
-    Ask Heron to answer or use one of its tools.
-
-    Emotion commands:
-    /chill
-    /sad
-    /excited
-    /khoon
-    /laugh
-    /happy
-    /smile
-    """.strip()
 
 def get_s(tx):
     page = wiki.page(tx)
@@ -102,22 +31,6 @@ def get_s(tx):
 def get_im(query):
     results = DDGS(timeout=15).images(query, max_results=1)
     return results[0]["image"] if results else None
-
-def _image(query: str):
-    return {"type": "image", "url": get_im(query)}
-
-
-def _gif(query: str):
-    return {"type": "gif", "url": giphy(query)}
-
-
-def _audio(query: str):
-    return {"type": "audio", "path": download(query)}
-
-
-def _speech(text: str, language: str = "en"):
-    conv_mp3(text, language)
-    return {"type": "speech", "path": "welcome.mp3"}
 
 def rand_quote():
     url = "https://zenquotes.io/"
@@ -180,7 +93,3 @@ def advice():
     a = json.loads(res.text)
     return a['slip']['advice']
 
-def about_suraj():
-    return """
-    Suraj is a piece of shit.
-""".strip()

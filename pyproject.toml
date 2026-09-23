@@ -10,7 +10,6 @@ requires-python = ">=3.13"
 dependencies = [
     "bs4>=0.0.2",
     "ddgs>=9.16.0",
-    "dotenv>=0.9.9",
     "fbchat-muqit>=1.2.2",
     "giphy-client>=1.0.0",
     "gtts>=2.2.4",
